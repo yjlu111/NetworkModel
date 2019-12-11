@@ -1,2 +1,46 @@
-function Barabasi_Albert()
+function A = BA()
+%UNTITLED 此处显示有关此函数的摘要
+%   此处显示详细说明
+ m0 = input('请输入初始网络节点个数m0= ');
+ m = input('请输入每次引入新节点时产生的边数m= ');
+ N = input('增长后的网络规模N= ');
+ if m>m0
+     disp('输入参数不合法');
+     return ;
+ end
+ 
+ % 生成初始图
+ A = zeros(m0);
+ for i=1:m0
+     for j=i+1:m0
+         p1 = rand(1,1);
+         if p1<(2*log(m0)/m0) && A(i,j)== 0
+             A(i,j) = 1;
+             A(j,i) = 1;
+         end
+     end
+ end
+ 
+ %网络增长
+ for k=m0+1:N
+     M = size(A,1);
+     p =zeros(1,M);
+     if sum(sum(A))==0
+         p(:) = 1/M;
+     else
+         for i=1:M
+             p(i) = sum(A(i,:))/sum(sum(A));
+         end
+     end
+     p1 = cumsum(p);
+     for i=1:m
+         rand_data = rand(1,1);
+         aa = find(p1>=rand_data);
+         jj = aa(1);
+         A(k,jj) = 1;
+         A(jj,k) = 1;
+     end
+ end
+ % save('BA.mat',A)
 end
+
