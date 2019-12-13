@@ -1,0 +1,24 @@
+function DegreeDistribution_layer1()
+%功能：单层网络的度分布
+ load layer1_fp_10_1000_0.50_3.mat R   %f(k)=k
+        A = R{1,1};
+%         Nsize=size(A,2);               %图中节点数
+%         DeD=zeros(1, Nsize);           %统计网络图中每个节点的度，初始是全为0
+%         for i=1: Nsize  
+%            DeD(i)=sum(A(i,:));          %求每个节点的度
+%         end
+        DeD = sum(A,1);
+        Degree=tabulate(DeD); 
+        sw=find(Degree(:,3)>0);       %查找sw第三列中大于0的元素
+        DegreeDisEx= zeros(length(sw), 2);    %在t时刻的顶点度分布（实验值）
+        for j=1:length(sw)
+            DegreeDisEx(j, :) = [Degree(sw(j),1), Degree(sw(j),3)/100];
+        end
+%       plot(DegreeDisEx(:,1),DegreeDisEx(:,2),'r*');
+       loglog(DegreeDisEx(:,1),DegreeDisEx(:,2),'r-v','markersize',5);
+%        semilogy(DegreeDisEx(:,1),DegreeDisEx(:,2),'r-v','markersize',5);
+       hold on;
+       xlabel('\it{k}')
+       ylabel('\it {P_k}')
+end
+
