@@ -1,0 +1,21 @@
+function JointDegreeDistribution_layer2()
+%% 程序功能：两层网络的度相关性
+
+ load layer2_fp_10_1000_0.50_3_4.mat R
+ Deg = [sum(R{1,1});sum(R{1,2})];  %第一层、第二层网络的对应节点度(k,l)
+ Degr_Corr = [];
+ U_D1 = unique(Deg(1,:));  % 取度序列
+ for i = 1:length(U_D1)
+     V1_Num = find(Deg(1,:)==U_D1(i));  %第一层度为U_D1(i)的节点
+     V2_Num = unique(Deg(2,V1_Num));    %第一层对应节点在第二层中的节点度([1 2;1 2])
+     Sta_Num = tabulate(Deg(2,V1_Num));  %统计第一层节点对应的第二层节点个数
+     Uniq_V2Num = zeros(1,length(V2_Num));  %(k,l)数
+     Uniq_V2Num(1,:) = U_D1(i); %第一层的节点度为U_D1(i)
+     Gr_zero = find(Sta_Num(:,2)>0);    
+     U_D11=[Uniq_V2Num;[Gr_zero,Sta_Num(Gr_zero,2)]']; %三行矩阵，第一行为第一层节点对应的度，第二行为第二层节点对应的度，第三层为(k,l)数
+     Degr_Corr = [Degr_Corr,U_D11];   %(k,l,n)的个数，
+ end
+  Pro = Degr_Corr(3,:)./sum(Degr_Corr(3,:));
+  Deg_Pro = [Degr_Corr; Pro]';  %第一列表示第一层的节点度，第二列表示第二层的节点度，第三列表示节点个数，第四列表示概率
+  save('Multiplex_Model_Corre_Degree_2.mat','Deg_Pro')
+end
