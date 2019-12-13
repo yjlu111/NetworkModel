@@ -1,0 +1,13 @@
+function JointDegreeDistribution_layer2_plot()
+%%功能：两层网络的联合度分布
+ load Multiplex_Model_Corre_Degree_2.mat Deg_Pro  
+ 
+ x1 = Deg_Pro(:,1);
+ y1 = Deg_Pro(:,2);
+ z1 = Deg_Pro(:,4);
+ scatter3(x1,y1,z1,'r')  % 散点图
+ xlabel('\it{k}');
+ ylabel('\it{l}');
+ zlabel('\it{P(k,l)}')
+
+end
