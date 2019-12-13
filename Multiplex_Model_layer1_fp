@@ -1,0 +1,67 @@
+function R = Multiplex_Model_layer1_fp(N0,t,p,m1)
+%% 程序功能：产生一个三层增长网络
+
+%% 三层初始网络:完全图
+    A = ones(N0,N0,3);  % 第一个N0表示矩阵行，第二个N0表示矩阵列，第三个3表示个数，即建立3个N0行N0列的矩阵
+    R{1,1}=A(:,:,1)-diag(diag(A(:,:,1)));  
+%     R{1,2}=A(:,:,2)-diag(diag(A(:,:,2)));
+%     R{1,3}=A(:,:,3)-diag(diag(A(:,:,3)));
+    
+%% 网络增长
+    T = N0;
+    while T <= t
+       % s = [sum(R{1,1},1);sum(R{1,2},1);sum(R{1,3},1)];   %计算两层网络中每个节点的度；
+        s = sum(R{1,1},1);   %计算1层网络中每个节点的度；是一个关于节点度的行向量
+        f = s';              %连接函数（转置，把行向量转换为列向量）            
+        bsize = size(f,1);  
+        
+%% 以概率p向网络中添加新节点
+        if rand(1,1) < p          %产生随机数，即选择概率；并据此走顶点步；  
+         deg = sortrows([(1:bsize)',f]);  %依据第一列的数值按升序移动每一行
+          r1 = randsample(deg(:,1),m1,'true',deg(:,2)/max(deg(:,2))); %按度选择m1个节点
+          Ur1 = unique(r1);
+          while m1~=length(Ur1)
+               r1 = randsample(deg(:,1),m1,'true',deg(:,2)/max(deg(:,2))); 
+               Ur1 = unique(r1);
+          end  % 在已有网络中选择m1个旧节点
+          R{1,1}(bsize+1,bsize+1) = 0;    % 向已有网络中添加一个节点
+          r1size = size(r1,1);
+          for node=1:r1size
+            R{1,1}(bsize+1,r1(node)) = 1;
+            R{1,1}(r1(node),bsize+1) = 1;
+          end % 新节点与已有节点连边
+         
+%% 以1-p的概率向网络中分别添加m1条边
+        else       
+            deg = sortrows([(1:bsize)',f]); 
+              r1 = randsample(deg(:,1),2,'true',deg(:,2)/max(deg(:,2)));
+              Ur1 = unique(r1);
+            while length(Ur1)~=2       %选择不同的节点对；
+               r1 = randsample(deg(:,1),2,'true',deg(:,2)/max(deg(:,2))); 
+               Ur1 = unique(r1);
+            end      
+               R{1,1}(r1(1),r1(2)) = 1;     % 
+               R{1,1}(r1(2),r1(1)) = 1;    
+             r1m = [];     %% 向第一层网络中添加m1条边            
+          for i = 2:m1    
+              r1m = [r1m, r1];
+              r1 = randsample(deg(:,1),2,'true',deg(:,2)/max(deg(:,2)));           
+              aa = r1m(1,end)==r1(1) &  r1m(2,end)==r1(2);
+              Ur1 = unique(r1);           
+            while length(Ur1)~=2 || sum(aa)==1      %选择不同的节点对；
+               r1 = randsample(deg(:,1),2,'true',deg(:,2)/max(deg(:,2)));
+               Ur1 = unique(r1);
+               aa = r1m(1,end)==r1(1) &  r1m(2,end)==r1(2);
+            end
+              R{1,1}(r1(1),r1(2)) = 1;     %把m个节点添加到新的网络中 
+              R{1,1}(r1(2),r1(1)) = 1;    
+          end     
+        end
+    T=T+1;
+    end
+    strFileName = sprintf('layer1_fp_%d_%d_%0.2f_%d.mat',...
+      N0,t,p,m1);
+    save(strFileName,'R')
+   % save('Multiplex_Model_layer1_fp.mat','R')
+end
+
